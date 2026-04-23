@@ -1,72 +1,91 @@
-# 🛍️ KlikBelanja - E-Commerce Platform (Enterprise Edition)
+# 🛍️ KlikBelanja - Modern Enterprise E-Commerce Platform
 
-KlikBelanja adalah platform e-commerce modern yang dibangun dengan **Next.js 15** dan **Tailwind CSS**. Aplikasi ini dirancang dengan standar profesional menggunakan arsitektur modular, visualisasi data analitik, dan sistem navigasi sidebar yang responsif.
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployment-black?style=for-the-badge&logo=vercel)](https://klik-belanja.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-## ✨ Fitur Utama
+**KlikBelanja** adalah platform e-commerce modern berstandar enterprise yang dirancang untuk memberikan pengalaman belanja yang mulus dan sistem manajemen inventaris yang kuat. Dibangun dengan teknologi web terbaru, aplikasi ini mengedepankan performa, keamanan, dan desain antarmuka yang intuitif.
 
-### 👨‍💼 Admin Dashboard
-- **Analytics Overview**: Visualisasi stok barang menggunakan grafik interaktif (**Recharts**).
-- **Inventory Management**: Kelola produk (Tambah, Edit, Hapus) dengan dukungan upload gambar.
-- **Stock Indicators**: Notifikasi visual untuk barang dengan stok rendah (< 10).
-- **Asset Estimation**: Perhitungan otomatis total nilai aset stok yang tersedia.
-
-### 👤 User Dashboard
-- **Product Mall**: Katalog belanja dengan desain kartu produk premium.
-- **Advanced Shopping Cart**: Sistem keranjang belanja persisten dengan fitur pilih barang (checkbox) untuk checkout.
-- **Smart Invoicing**: Sistem rincian belanja otomatis yang dapat memulihkan data harga dari katalog (mengatasi limitasi API).
-- **Transaction History**: Riwayat pembelian lengkap dengan modal detail invoice yang rapi.
-
-### 🔐 Security & Architecture
-- **Next-Auth Integration**: Sistem autentikasi aman dengan pembedaan Role (Admin & User).
-- **API Proxy Layer**: Melindungi endpoint backend asli dan menangani CORS secara otomatis melalui server-side proxy.
-- **Responsive Sidebar Layout**: Navigasi sidebar yang optimal untuk desktop dan mobile.
-
-## 🚀 Teknologi yang Digunakan
-- **Framework**: [Next.js 15+](https://nextjs.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Charts**: [Recharts](https://recharts.org/)
-- **State Management**: React Context API
-- **Authentication**: Next-Auth v4
-- **HTTP Client**: Axios
-
-## 🛠️ Instalasi Lokal
-
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/username/klik-belanja.git
-   cd klik-belanja
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Setup Environment Variables**
-   Buat file `.env.local` di root folder:
-   ```env
-   NEXTAUTH_SECRET="klikbelanja-super-secret-key"
-   NEXTAUTH_URL="http://localhost:3000"
-   ```
-
-4. **Jalankan Aplikasi**
-   ```bash
-   npm run dev
-   ```
-   Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
-
-## ☁️ Deployment ke Vercel
-
-Proyek ini sudah dioptimalkan untuk dideploy ke [Vercel](https://vercel.com).
-
-### Langkah-langkah:
-1. Hubungkan repository GitHub Anda ke Vercel.
-2. Pada bagian **Environment Variables**, tambahkan:
-   - `NEXTAUTH_SECRET`: (Kunci rahasia bebas, contoh: `klikbelanja-secret-2026`)
-   - `NEXTAUTH_URL`: URL aplikasi Anda (contoh: `https://klik-belanja.vercel.app`)
-3. Klik **Deploy**.
-4. **PENTING**: Pastikan domain Vercel Anda sudah didaftarkan di backend jika diperlukan (CORS), namun karena menggunakan Proxy API Route, biasanya tidak ada masalah.
+🔗 **Live Demo:** [https://klik-belanja.vercel.app](https://klik-belanja.vercel.app)
 
 ---
-*Dibuat untuk tugas produktif sekolah dengan fokus pada UI/UX dan Clean Code.*
+
+## 🚀 Fitur Utama
+
+### 🛠️ Dashboard Administrator (Control Center)
+*   **Analitik Real-Time:** Visualisasi pergerakan stok dan estimasi aset menggunakan grafik interaktif dari **Recharts**.
+*   **Manajemen Inventaris:** Sistem CRUD (Create, Read, Update, Delete) produk yang komprehensif dengan dukungan upload gambar.
+*   **Smart Inventory Alerts:** Notifikasi otomatis untuk produk dengan stok menipis (di bawah 10 unit).
+*   **Estimasi Aset Digital:** Perhitungan otomatis nilai total stok barang untuk laporan finansial cepat.
+
+### 🛒 Pengalaman Pelanggan (User Experience)
+*   **Premium Product Mall:** Katalog produk dengan layout kartu modern, filter kategori, dan pencarian cepat.
+*   **Persistent Shopping Cart:** Keranjang belanja cerdas yang tersimpan di sesi, memungkinkan pengguna memilih barang spesifik untuk di-checkout.
+*   **Dynamic Invoice System:** Pembuatan invoice otomatis dengan sistem pemulihan data harga untuk memastikan akurasi meskipun terjadi perubahan pada API eksternal.
+*   **Riwayat Transaksi:** Lacak semua pembelian sebelumnya dengan tampilan modal invoice yang profesional dan siap cetak.
+
+### 🛡️ Keamanan & Arsitektur
+*   **Role-Based Access Control (RBAC):** Proteksi rute yang ketat memisahkan akses antara Admin dan User menggunakan **Next-Auth**.
+*   **API Proxy Layer:** Implementasi server-side proxy untuk menangani masalah CORS dan menyembunyikan endpoint backend asli demi keamanan data.
+*   **Modular Component Design:** Struktur kode yang bersih dan terorganisir di dalam folder `src/components`, `src/context`, dan `src/types`.
+
+---
+
+## 💻 Teknologi yang Digunakan
+
+| Teknologi | Deskripsi |
+| :--- | :--- |
+| **Next.js 15 (App Router)** | Framework React terbaru untuk performa SSR/SSG yang optimal. |
+| **React 19** | Library UI modern dengan dukungan Server Components. |
+| **Tailwind CSS 4.0** | Framework CSS utility-first untuk desain UI yang responsif dan elegan. |
+| **Next-Auth.js v4** | Solusi autentikasi lengkap untuk manajemen sesi dan role. |
+| **Recharts** | Library grafik yang dapat dikomposisi untuk visualisasi data admin. |
+| **Lucide React** | Set ikon vektor yang konsisten dan ringan. |
+| **Axios** | HTTP Client untuk komunikasi data yang handal dengan backend. |
+| **Context API** | Manajemen state global untuk keranjang belanja dan preferensi pengguna. |
+
+---
+
+## 🛠️ Panduan Instalasi Lokal
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan proyek di mesin lokal Anda:
+
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/username/klik-belanja.git
+    cd klik-belanja
+    ```
+
+2.  **Instal Dependensi**
+    ```bash
+    npm install
+    ```
+
+3.  **Konfigurasi Environment Variables**
+    Buat file `.env.local` di root direktori dan tambahkan konfigurasi berikut:
+    ```env
+    NEXTAUTH_SECRET="your-super-secret-key"
+    NEXTAUTH_URL="http://localhost:3000"
+    ```
+
+4.  **Jalankan Mode Pengembangan**
+    ```bash
+    npm run dev
+    ```
+    Buka [http://localhost:3000](http://localhost:3000) pada browser Anda.
+
+---
+
+## 🌐 Deployment
+
+Proyek ini siap untuk dideploy ke **Vercel** dengan langkah mudah:
+
+1.  Push kode ke GitHub/GitLab/Bitbucket.
+2.  Import proyek di dashboard Vercel.
+3.  Tambahkan Environment Variables (`NEXTAUTH_SECRET` & `NEXTAUTH_URL`) di pengaturan Vercel.
+4.  Klik **Deploy**.
+
+---
+
+*Dikembangkan dengan ❤️ sebagai solusi e-commerce modern yang mengutamakan skalabilitas dan pengalaman pengguna.*
+
