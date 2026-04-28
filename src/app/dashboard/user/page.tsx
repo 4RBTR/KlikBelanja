@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { ShoppingCart, FileText, Store, Menu } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
 
 // Components
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -42,13 +43,24 @@ interface HistoryItem {
   [key: string]: unknown;
 }
 
-export default function UserDashboard() {
+function UserDashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   const { cartItems, updateQuantity, removeFromCart, addToCart } = useCart();
   
   const [activeTab, setActiveTab] = useState<"catalog" | "bill" | "invoice">("catalog");
   const [products, setProducts] = useState<Product[]>([]);
+  
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) return products;
+    return products.filter(p => 
+      p.nama_barang.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.deskripsi.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [products, searchQuery]);
+  
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<HistoryItem | null>(null);
@@ -130,7 +142,10 @@ export default function UserDashboard() {
 
   const handleCheckout = async () => {
     const itemsToCheckout = cartItems.filter(item => checkedItems.includes(item.id));
-    if (itemsToCheckout.length === 0) return;
+    if (itemsToCheckout.length === 0) {
+      toast.error("Pilih setidaknya satu barang untuk checkout");
+      return;
+    }
     
     try {
       setLoading(true);
@@ -143,18 +158,18 @@ export default function UserDashboard() {
 
       const res = await axios.post("/api/proxy/user/transaksi", payload);
       if (res.data.status) {
-        alert("Transaksi Berhasil!");
+        toast.success("Transaksi Berhasil!");
         itemsToCheckout.forEach(item => removeFromCart(item.id));
         setActiveTab("invoice");
       } else {
-        alert("Gagal memproses transaksi: " + res.data.message);
+        toast.error("Gagal memproses transaksi: " + res.data.message);
       }
     } catch (error: unknown) {
       console.error("Checkout error", error);
       if (axios.isAxiosError(error)) {
-        alert("Terjadi kesalahan sistem: " + (error.response?.data?.message?.[0] || error.message));
+        toast.error("Terjadi kesalahan sistem: " + (error.response?.data?.message?.[0] || error.message));
       } else {
-        alert("Terjadi kesalahan yang tidak diketahui");
+        toast.error("Terjadi kesalahan yang tidak diketahui");
       }
     } finally {
       setLoading(false);
@@ -215,7 +230,7 @@ export default function UserDashboard() {
           {activeTab === "catalog" && (
             <Catalog 
               loading={loading} 
-              products={products} 
+              products={filteredProducts} 
               baseUrlImage={baseUrlImage} 
               addedItem={addedItem} 
               onAddToCart={handleAddToCart} 
@@ -253,5 +268,13 @@ export default function UserDashboard() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+      <UserDashboardContent />
+    </Suspense>
   );
 }

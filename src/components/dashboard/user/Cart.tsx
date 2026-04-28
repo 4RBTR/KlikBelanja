@@ -67,7 +67,7 @@ export default function Cart({
                 />
                 <div className="h-20 w-20 bg-gray-50 rounded-xl overflow-hidden relative shrink-0 flex items-center justify-center border border-gray-100">
                   {item.image ? (
-                    <Image src={item.image.startsWith('http') ? item.image : `${baseUrlImage}${item.image}`} alt={item.nama_barang} fill className="object-cover" />
+                    <Image src={item.image.startsWith('http') ? item.image : `${baseUrlImage}${item.image}`} alt={item.nama_barang} fill sizes="80px" className="object-cover" />
                   ) : (
                     <Package className="h-8 w-8 text-gray-300" />
                   )}

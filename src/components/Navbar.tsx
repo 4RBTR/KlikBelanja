@@ -4,12 +4,46 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Search, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const { data: session } = useSession();
   const { cartItems } = useCart();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
+  const [animateCart, setAnimateCart] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && cartItemCount > 0) {
+      setAnimateCart(true);
+      const timer = setTimeout(() => setAnimateCart(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [cartItemCount, mounted]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const targetDashboard = session?.user?.role === "admin" ? "/dashboard/admin" : "/dashboard/user";
+    if (searchValue.trim()) {
+      router.push(`${targetDashboard}?search=${encodeURIComponent(searchValue)}`);
+    } else {
+      router.push(targetDashboard);
+    }
+  };
+
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+  }, [searchParams]);
 
   return (
     <nav className="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
@@ -24,24 +58,26 @@ export function Navbar() {
           
           {/* Search Bar */}
           <div className="flex-1 max-w-2xl mx-8 hidden md:block">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
               </div>
               <input
                 type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
                 placeholder="Cari di KlikBelanja"
               />
-            </div>
+            </form>
           </div>
 
           <div className="flex items-center gap-4">
-            {(!session || session?.user?.role === "user") && (
-              <Link href={session ? "/dashboard/user" : "/login"} className="text-gray-500 hover:text-primary transition-colors relative">
-                <ShoppingCart className="h-6 w-6" />
+            {mounted && session?.user?.role === "user" && (
+              <Link href="/dashboard/user" className={`text-gray-500 hover:text-primary transition-all relative ${animateCart ? 'scale-125 text-primary' : ''}`}>
+                <ShoppingCart className={`h-6 w-6 ${animateCart ? 'animate-bounce' : ''}`} />
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className={`absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white transition-transform ${animateCart ? 'scale-110' : ''}`}>
                     {cartItemCount > 99 ? '99+' : cartItemCount}
                   </span>
                 )}

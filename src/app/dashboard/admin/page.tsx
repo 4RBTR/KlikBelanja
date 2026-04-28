@@ -1,10 +1,12 @@
+ 
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { LayoutDashboard, Package, Menu } from "lucide-react";
+import { toast } from "sonner";
 
 // Components
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -22,11 +24,16 @@ interface Product {
   image: string | null;
 }
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search") || "";
   
-  const [activeTab, setActiveTab] = useState<"dashboard" | "products">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "products">(() => 
+    searchParams.get("search") ? "products" : "dashboard"
+  );
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -102,18 +109,18 @@ export default function AdminDashboard() {
       });
 
       if (res.data.status) {
-        alert(`Barang berhasil ${editingProduct ? 'diperbarui' : 'ditambahkan'}!`);
+        toast.success(`Barang berhasil ${editingProduct ? 'diperbarui' : 'ditambahkan'}!`);
         setShowProductModal(false);
         fetchData();
       } else {
-        alert("Gagal menyimpan barang: " + res.data.message);
+        toast.error("Gagal menyimpan barang: " + res.data.message);
       }
     } catch (error: unknown) {
       console.error("Error saving product:", error);
       if (axios.isAxiosError(error)) {
-        alert("Terjadi kesalahan sistem: " + (error.response?.data?.message?.[0] || error.message));
+        toast.error("Terjadi kesalahan sistem: " + (error.response?.data?.message?.[0] || error.message));
       } else {
-        alert("Terjadi kesalahan yang tidak diketahui");
+        toast.error("Terjadi kesalahan yang tidak diketahui");
       }
     } finally {
       setIsSubmitting(false);
@@ -195,6 +202,7 @@ export default function AdminDashboard() {
               baseUrlImage={baseUrlImage} 
               onEdit={openEditModal} 
               onAdd={openAddModal} 
+              initialSearch={searchQuery}
             />
           )}
         </div>
@@ -211,5 +219,13 @@ export default function AdminDashboard() {
         handleImageChange={handleImageChange} 
       />
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

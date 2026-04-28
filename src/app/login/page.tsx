@@ -5,16 +5,15 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Package, Lock, Mail } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Login() {
   const router = useRouter();
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -27,10 +26,10 @@ export default function Login() {
     });
 
     if (res?.error) {
-      setError("Email atau password salah");
+      toast.error("Email atau password salah. Silakan coba lagi.");
       setLoading(false);
     } else {
-      // Ambil session untuk mengecek role
+      toast.success("Berhasil masuk! Mengalihkan...");
       const sessionResponse = await fetch("/api/auth/session");
       const sessionData = await sessionResponse.json();
       
@@ -44,80 +43,83 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="px-8 pt-8 pb-6 text-center">
-          <Link href="/" className="inline-flex items-center justify-center gap-2 text-3xl font-bold text-primary mb-2">
-            <Package className="h-8 w-8" />
-            KlikBelanja
-          </Link>
-          <h2 className="text-xl font-semibold text-gray-800">Selamat Datang Kembali</h2>
-          <p className="text-sm text-gray-500 mt-1">Masuk untuk melanjutkan belanja</p>
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-6 bg-gray-50">
+      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 flex flex-col">
+        <div className="p-10 text-center">
+          <div className="inline-flex p-4 bg-green-50 rounded-2xl mb-6 shadow-sm">
+            <Package className="h-10 w-10 text-primary" />
+          </div>
+          <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Selamat Datang</h2>
+          <p className="text-gray-500 font-medium">Masuk untuk melanjutkan pengalaman belanja terbaik Anda.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-5">
-          {error && (
-            <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm text-center border border-red-100">
-              {error}
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+        <form onSubmit={handleSubmit} className="px-10 pb-10 space-y-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Alamat Email</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  className="block w-full pl-12 pr-4 py-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium"
+                  placeholder="name@example.com"
+                />
               </div>
-              <input
-                name="email"
-                type="email"
-                required
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder="contoh@email.com"
-              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Kata Sandi</label>
+                <a href="#" className="text-[10px] font-black text-primary uppercase tracking-wider hover:underline">Lupa Password?</a>
+              </div>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-primary">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  name="password"
+                  type="password"
+                  required
+                  className="block w-full pl-12 pr-4 py-4 bg-gray-50 border-0 rounded-2xl focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm font-medium"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                name="password"
-                type="password"
-                required
-                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input id="remember-me" name="remember-me" type="checkbox" className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">Ingat saya</label>
-            </div>
-            <div className="text-sm">
-              <a href="#" className="font-medium text-primary hover:text-primary-hover">Lupa password?</a>
-            </div>
+          <div className="flex items-center px-1">
+            <input 
+              id="remember-me" 
+              name="remember-me" 
+              type="checkbox" 
+              className="h-5 w-5 text-primary focus:ring-primary border-gray-200 rounded-lg cursor-pointer" 
+            />
+            <label htmlFor="remember-me" className="ml-3 block text-sm font-bold text-gray-600 cursor-pointer">Ingat Saya</label>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-70 transition-colors"
+            className="w-full flex justify-center py-4 px-4 bg-primary hover:bg-primary-hover text-white rounded-2xl shadow-xl shadow-primary/20 font-black text-sm uppercase tracking-widest transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
           >
-            {loading ? "Memproses..." : "Masuk"}
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Memproses...</span>
+              </div>
+            ) : "Masuk Sekarang"}
           </button>
         </form>
         
-        <div className="px-8 py-4 bg-gray-50 border-t border-gray-100 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="px-10 py-6 bg-gray-50 border-t border-gray-100 text-center">
+          <p className="text-sm font-bold text-gray-500">
             Belum punya akun?{' '}
-            <Link href="/register" className="font-medium text-primary hover:text-primary-hover">
-              Daftar sekarang
+            <Link href="/register" className="text-primary hover:underline">
+              Daftar Gratis
             </Link>
           </p>
         </div>

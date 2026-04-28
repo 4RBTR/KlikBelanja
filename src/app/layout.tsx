@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
-import { Navbar } from "@/components/Navbar";
+import { ConditionalNavbar } from "@/components/ConditionalNavbar";
 import { CartProvider } from "@/context/CartContext";
 import { Analytics } from "@vercel/analytics/next"
 
@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "Belanja mudah dan aman di KlikBelanja.",
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,11 +36,12 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-50">
         <AuthProvider>
           <CartProvider>
-            <Navbar />
+            <ConditionalNavbar />
             <main className="flex-1">{children}</main>
           </CartProvider>
         </AuthProvider>
         <Analytics />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
