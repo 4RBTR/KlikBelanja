@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { ShoppingBag, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);

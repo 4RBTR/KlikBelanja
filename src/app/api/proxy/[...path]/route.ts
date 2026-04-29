@@ -1,13 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 const BASE_URL = process.env.API_BASE_URL || "https://learn.smktelkom-mlg.sch.id/toko/api";
 
-export async function ANY(req: NextRequest, { params }: { params: { path: string[] } }) {
-  // Wait, Next.js route handlers need specific exports for GET, POST, PUT, DELETE, etc.
-  return handleProxy(req, params);
-}
+
 
 async function handleProxy(req: NextRequest, params: { path: string[] }) {
   const session = await getServerSession(authOptions);
@@ -28,11 +27,14 @@ async function handleProxy(req: NextRequest, params: { path: string[] }) {
   }
   
   headers.set("Accept", "application/json");
+  headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
   // Attach token if user is logged in
   if (session?.user?.token) {
     headers.set("Authorization", `Bearer ${session.user.token}`);
   }
+
+
 
   try {
     let body: FormData | string | null = null;
@@ -48,13 +50,36 @@ async function handleProxy(req: NextRequest, params: { path: string[] }) {
       }
     }
 
-    const response = await fetch(targetUrl, {
-      method: req.method,
-      headers,
-      body,
-    });
+    let response;
+    let retries = 3;
+    let lastError;
 
-    // Check if response is JSON
+    while (retries > 0) {
+      try {
+        response = await fetch(targetUrl, {
+          method: req.method,
+          headers,
+          body,
+          // Add a signal for timeout if needed, but fetch in Node usually has a default
+        });
+        break; // Success, exit loop
+      } catch (err: any) {
+        lastError = err;
+        if (err.code === 'ECONNRESET' || err.message?.includes('fetch failed')) {
+          console.log(`Retrying fetch to ${targetUrl}... (${retries} attempts left)`);
+          retries--;
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 500));
+          continue;
+        }
+        throw err; // Non-retryable error
+      }
+    }
+
+    if (!response) {
+      throw lastError || new Error("Failed to fetch after retries");
+    }
+
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
       const data = await response.json();
