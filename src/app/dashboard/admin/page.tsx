@@ -11,7 +11,13 @@ import { toast } from "sonner";
 // Components
 import Sidebar from "@/components/dashboard/Sidebar";
 import StatsCards from "@/components/dashboard/admin/StatsCards";
-import InventoryChart from "@/components/dashboard/admin/InventoryChart";
+import dynamic from "next/dynamic";
+const InventoryChart = dynamic(() => import("@/components/dashboard/admin/InventoryChart"), { 
+  ssr: false,
+  loading: () => <div className="bg-white p-10 rounded-4xl shadow-sm border border-gray-100 h-[500px] flex items-center justify-center">
+    <div className="h-12 w-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+  </div>
+});
 import ProductTable from "@/components/dashboard/admin/ProductTable";
 import ProductModal from "@/components/dashboard/admin/ProductModal";
 

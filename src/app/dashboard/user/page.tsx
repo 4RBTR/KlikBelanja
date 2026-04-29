@@ -73,8 +73,8 @@ function UserDashboardContent() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated" && session?.user?.role?.toLowerCase() !== "user") {
-      router.push("/");
+    } else if (status === "authenticated" && session?.user?.role?.toLowerCase() === "admin") {
+      router.push("/dashboard/admin");
     }
   }, [status, session, router]);
 
@@ -190,8 +190,15 @@ function UserDashboardContent() {
     }, 0);
   };
 
-  if (status === "loading" || (status === "authenticated" && session?.user?.role?.toLowerCase() !== "user")) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-50"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>;
+  if (status === "loading" || (status === "authenticated" && session?.user?.role?.toLowerCase() === "admin")) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary"></div>
+        <p className="text-sm font-bold text-gray-400 animate-pulse">
+          {session?.user?.role?.toLowerCase() === "admin" ? "Mengalihkan ke Dashboard Admin..." : "Memuat Dashboard..."}
+        </p>
+      </div>
+    );
   }
 
   const sidebarItems = [

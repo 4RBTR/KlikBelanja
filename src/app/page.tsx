@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, ShieldCheck, Zap, ArrowRight } from "lucide-react";
 import { getServerSession } from "next-auth/next";
@@ -80,10 +80,12 @@ export default async function Home() {
             <div className="relative animate-in zoom-in duration-1000 delay-200">
               <div className="absolute -inset-4 bg-primary/10 blur-3xl rounded-full" />
               <div className="relative aspect-4/5 rounded-[2.5rem] overflow-hidden shadow-2xl border-8 border-white group">
-                <img 
+                <Image 
                   src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop" 
                   alt="E-commerce shopping" 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  priority
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/90 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg translate-y-4 group-hover:translate-y-0 transition-transform duration-500">

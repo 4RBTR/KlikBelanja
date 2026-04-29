@@ -21,11 +21,10 @@ export const authOptions: NextAuthOptions = {
             method: "POST",
             body: formData,
           });
-
           const data = await res.json();
-          console.log("Login response:", JSON.stringify(data));
 
           if (res.ok && data.status && data.user && data.token) {
+            console.log(`Login successful for user: ${data.user.email}`);
             return {
               id: data.user.id.toString(),
               name: data.user.nama_user || data.user.name,
