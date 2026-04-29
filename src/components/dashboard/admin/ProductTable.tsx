@@ -18,10 +18,11 @@ interface ProductTableProps {
   baseUrlImage: string;
   onEdit: (product: Product) => void;
   onAdd: () => void;
+  onDelete: (id: number) => void;
   initialSearch?: string;
 }
 
-export default function ProductTable({ loading, products, baseUrlImage, onEdit, onAdd, initialSearch = "" }: ProductTableProps) {
+export default function ProductTable({ loading, products, baseUrlImage, onEdit, onAdd, onDelete, initialSearch = "" }: ProductTableProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   const filteredProducts = products.filter(p => 
@@ -142,6 +143,7 @@ export default function ProductTable({ loading, products, baseUrlImage, onEdit, 
                             <Edit className="h-4 w-4" />
                           </button>
                           <button 
+                            onClick={() => onDelete(product.id)}
                             className="p-3 text-red-500 bg-red-50 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-sm group-hover:scale-110" 
                             title="Hapus Produk"
                           >

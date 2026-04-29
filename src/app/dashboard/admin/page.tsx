@@ -133,6 +133,28 @@ function AdminDashboardContent() {
     }
   };
 
+  const handleDeleteProduct = async (id: number) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus barang ini?")) return;
+    
+    try {
+      const res = await axios.delete(`/api/proxy/admin/hapusbarang/${id}`);
+      if (res.data.status) {
+        toast.success("Barang berhasil dihapus!");
+        fetchData();
+      } else {
+        toast.error("Gagal menghapus barang: " + res.data.message);
+      }
+    } catch (error: unknown) {
+      console.error("Error deleting product:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Backend Response Data:", error.response?.data);
+        toast.error("Terjadi kesalahan sistem (500). Kemungkinan barang masih terpakai di riwayat transaksi. " + (error.response?.data?.message?.[0] || error.message));
+      } else {
+        toast.error("Terjadi kesalahan yang tidak diketahui");
+      }
+    }
+  };
+
   const chartData = useMemo(() => {
     return products.slice(0, 10).map(p => ({
       name: p.nama_barang.length > 15 ? p.nama_barang.substring(0, 15) + '...' : p.nama_barang,
@@ -208,6 +230,7 @@ function AdminDashboardContent() {
               baseUrlImage={baseUrlImage} 
               onEdit={openEditModal} 
               onAdd={openAddModal} 
+              onDelete={handleDeleteProduct}
               initialSearch={searchQuery}
             />
           )}

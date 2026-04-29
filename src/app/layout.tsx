@@ -5,6 +5,8 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { ConditionalNavbar } from "@/components/ConditionalNavbar";
 import { CartProvider } from "@/context/CartContext";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +44,7 @@ export default function RootLayout({
         </AuthProvider>
         <Analytics />
         <Toaster position="top-center" richColors />
+        <SpeedInsights />
       </body>
     </html>
   );
