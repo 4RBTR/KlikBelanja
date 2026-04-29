@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useState, useMemo, Suspense } from "react";
@@ -84,6 +85,7 @@ function UserDashboardContent() {
     return map;
   }, [products]);
 
+  // Fetch Data Effect
   useEffect(() => {
     let isMounted = true;
     
@@ -91,7 +93,10 @@ function UserDashboardContent() {
       setLoading(true);
       try {
         const res = await axios.get("/api/proxy/user/getbarang");
-        if (isMounted && res.data.data) setProducts(res.data.data);
+        if (isMounted && res.data?.data) {
+          const fetchedProducts = Array.isArray(res.data.data) ? res.data.data : [];
+          setProducts(fetchedProducts);
+        }
       } catch (error) {
         console.error("Error fetching catalog:", error);
       } finally {
@@ -103,7 +108,10 @@ function UserDashboardContent() {
       setLoading(true);
       try {
         const res = await axios.get("/api/proxy/user/history_trans");
-        if (isMounted && res.data.data) setHistory(res.data.data);
+        if (isMounted && res.data?.data) {
+          const fetchedHistory = Array.isArray(res.data.data) ? res.data.data : [];
+          setHistory(fetchedHistory);
+        }
       } catch (error) {
         console.error("Error fetching history:", error);
       } finally {
@@ -112,27 +120,25 @@ function UserDashboardContent() {
     };
 
     if (status === "authenticated") {
-      if (products.length === 0) {
-        fetchCatalog().then(() => {
-          if (activeTab === "invoice") fetchHistory();
-        });
-      } else {
-        if (activeTab === "catalog") fetchCatalog();
-        else if (activeTab === "invoice") fetchHistory();
-      }
-      
-      if (activeTab === "bill") {
-        setTimeout(() => {
-          if (isMounted) {
-            setCheckedItems(cartItems.map(i => i.id));
-            setLoading(false);
-          }
-        }, 0);
+      if (activeTab === "catalog" && products.length === 0) {
+        fetchCatalog();
+      } else if (activeTab === "invoice") {
+        fetchHistory();
+      } else if (activeTab === "bill") {
+        setLoading(false);
       }
     }
     
     return () => { isMounted = false; };
-  }, [activeTab, status, cartItems, products.length]);
+  }, [activeTab, products.length, status]);
+
+  // Sync Cart effect only runs when switching to bill tab
+  useEffect(() => {
+    if (activeTab === "bill") {
+      setCheckedItems(cartItems.map(i => i.id));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);

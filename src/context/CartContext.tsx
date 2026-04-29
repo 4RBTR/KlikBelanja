@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
@@ -34,9 +35,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const savedCart = localStorage.getItem("klikbelanja_cart");
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) {
+          setCartItems(parsed);
+        } else {
+          setCartItems([]);
+        }
       } catch (e) {
         console.error("Failed to parse cart");
+        setCartItems([]);
       }
     }
   }, []);
@@ -48,15 +55,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (product: Product) => {
     setCartItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      const prevArray = Array.isArray(prev) ? prev : [];
+      const existing = prevArray.find((item) => item.id === product.id);
       if (existing) {
         // limit by stock
-        if (existing.qty >= product.stok) return prev;
-        return prev.map((item) =>
+        if (existing.qty >= product.stok) return prevArray;
+        return prevArray.map((item) =>
           item.id === product.id ? { ...item, qty: item.qty + 1 } : item
         );
       }
-      return [...prev, { ...product, qty: 1 }];
+      return [...prevArray, { ...product, qty: 1 }];
     });
   };
 
