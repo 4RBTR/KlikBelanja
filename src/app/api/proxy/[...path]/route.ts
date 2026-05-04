@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 
 const BASE_URL = process.env.API_BASE_URL || "https://learn.smktelkom-mlg.sch.id/toko/api";
 
-
-
 async function handleProxy(req: NextRequest, params: { path: string[] }) {
-  const session = await getServerSession(authOptions);
-  
+  // Use getToken directly — more reliable than getServerSession in App Router route handlers
+  const jwtPayload = await getToken({ 
+    req, 
+    secret: process.env.NEXTAUTH_SECRET || "klikbelanja-super-secret-key-development",
+    cookieName: "next-auth.session-token.klikbelanja"
+  });
+  const tokenStr = (jwtPayload?.token as string) || null;
+
   // Reconstruct the external path
   const path = params.path ? params.path.join("/") : "";
   const searchParams = req.nextUrl.searchParams.toString();
@@ -19,8 +22,6 @@ async function handleProxy(req: NextRequest, params: { path: string[] }) {
 
   const headers = new Headers();
   
-  // We need to carefully proxy headers, especially Content-Type
-  // For FormData, we should NOT set Content-Type manually, fetch will do it with the correct boundary
   const reqContentType = req.headers.get("content-type");
   if (reqContentType && !reqContentType.includes("multipart/form-data")) {
     headers.set("Content-Type", reqContentType);
@@ -30,8 +31,8 @@ async function handleProxy(req: NextRequest, params: { path: string[] }) {
   headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
   // Attach token if user is logged in
-  if (session?.user?.token) {
-    headers.set("Authorization", `Bearer ${session.user.token}`);
+  if (tokenStr) {
+    headers.set("Authorization", `Bearer ${tokenStr}`);
   }
 
 

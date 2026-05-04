@@ -4,6 +4,7 @@
 import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import api from "@/lib/axios";
 import axios from "axios";
 import { ShoppingCart, FileText, Store, Menu } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -92,13 +93,15 @@ function UserDashboardContent() {
     const fetchCatalog = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/proxy/user/getbarang");
+        const res = await api.get("/api/proxy/user/getbarang");
         if (isMounted && res.data?.data) {
           const fetchedProducts = Array.isArray(res.data.data) ? res.data.data : [];
           setProducts(fetchedProducts);
         }
-      } catch (error) {
-        console.error("Error fetching catalog:", error);
+      } catch (error: unknown) {
+        if (!(error as Error & { __handled?: boolean })?.__handled) {
+          console.error("Error fetching catalog:", error);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -107,13 +110,15 @@ function UserDashboardContent() {
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/proxy/user/history_trans");
+        const res = await api.get("/api/proxy/user/history_trans");
         if (isMounted && res.data?.data) {
           const fetchedHistory = Array.isArray(res.data.data) ? res.data.data : [];
           setHistory(fetchedHistory);
         }
-      } catch (error) {
-        console.error("Error fetching history:", error);
+      } catch (error: unknown) {
+        if (!(error as Error & { __handled?: boolean })?.__handled) {
+          console.error("Error fetching history:", error);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -162,7 +167,7 @@ function UserDashboardContent() {
         }))
       };
 
-      const res = await axios.post("/api/proxy/user/transaksi", payload);
+      const res = await api.post("/api/proxy/user/transaksi", payload);
       if (res.data.status) {
         toast.success("Transaksi Berhasil!");
         itemsToCheckout.forEach(item => removeFromCart(item.id));

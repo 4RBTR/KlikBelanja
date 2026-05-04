@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef, useMemo, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import api from "@/lib/axios";
 import axios from "axios";
 import { LayoutDashboard, Package, Menu } from "lucide-react";
 import { toast } from "sonner";
@@ -57,10 +58,13 @@ function AdminDashboardContent() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/proxy/admin/getbarang");
+      const res = await api.get("/api/proxy/admin/getbarang");
       if (res.data.data) setProducts(res.data.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch (error: unknown) {
+      // 401 is handled by the axios interceptor (auto sign-out), don't log it
+      if (!(error as Error & { __handled?: boolean })?.__handled) {
+        console.error("Error fetching data:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -108,7 +112,7 @@ function AdminDashboardContent() {
       : `/api/proxy/admin/insertbarang`;
 
     try {
-      const res = await axios.post(apiUrl, formData, {
+      const res = await api.post(apiUrl, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -133,11 +137,26 @@ function AdminDashboardContent() {
     }
   };
 
-  const handleDeleteProduct = async (id: number) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus barang ini?")) return;
+  const handleDeleteProduct = (id: number) => {
+    const productName = products.find(p => p.id === id)?.nama_barang || "barang ini";
     
+    toast(`Hapus "${productName}"?`, {
+      description: "Barang yang sudah dihapus tidak dapat dikembalikan.",
+      action: {
+        label: "Ya, Hapus",
+        onClick: () => executeDelete(id),
+      },
+      cancel: {
+        label: "Batal",
+        onClick: () => {},
+      },
+      duration: 10000,
+    });
+  };
+
+  const executeDelete = async (id: number) => {
     try {
-      const res = await axios.delete(`/api/proxy/admin/hapusbarang/${id}`);
+      const res = await api.delete(`/api/proxy/admin/hapusbarang/${id}`);
       if (res.data.status) {
         toast.success("Barang berhasil dihapus!");
         fetchData();
@@ -145,12 +164,19 @@ function AdminDashboardContent() {
         toast.error("Gagal menghapus barang: " + res.data.message);
       }
     } catch (error: unknown) {
-      console.error("Error deleting product:", error);
       if (axios.isAxiosError(error)) {
-        console.error("Backend Response Data:", error.response?.data);
-        toast.error("Terjadi kesalahan sistem (500). Kemungkinan barang masih terpakai di riwayat transaksi. " + (error.response?.data?.message?.[0] || error.message));
+        const msg = error.response?.data?.message || "";
+        const isFK = typeof msg === "string" 
+          ? msg.includes("foreign key") || msg.includes("constraint") 
+          : error.response?.data?.exception?.includes("QueryException");
+        
+        if (isFK || error.response?.status === 500) {
+          toast.error("Barang tidak bisa dihapus karena sudah dipakai di riwayat transaksi.");
+        } else {
+          toast.error("Gagal menghapus: " + (typeof msg === "string" ? msg : error.message));
+        }
       } else {
-        toast.error("Terjadi kesalahan yang tidak diketahui");
+        toast.error("Terjadi kesalahan yang tidak diketahui.");
       }
     }
   };
