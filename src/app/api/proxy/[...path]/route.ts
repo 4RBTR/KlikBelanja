@@ -6,11 +6,17 @@ import { getToken } from "next-auth/jwt";
 const BASE_URL = process.env.API_BASE_URL || "https://learn.smktelkom-mlg.sch.id/toko/api";
 
 async function handleProxy(req: NextRequest, params: { path: string[] }) {
+  // In production, NextAuth prefixes cookie with __Secure-
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieName = isProduction
+    ? "__Secure-next-auth.session-token.klikbelanja"
+    : "next-auth.session-token.klikbelanja";
+
   // Use getToken directly — more reliable than getServerSession in App Router route handlers
   const jwtPayload = await getToken({ 
     req, 
     secret: process.env.NEXTAUTH_SECRET || "klikbelanja-super-secret-key-development",
-    cookieName: "next-auth.session-token.klikbelanja"
+    cookieName
   });
   const tokenStr = (jwtPayload?.token as string) || null;
 
