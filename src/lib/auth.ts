@@ -64,6 +64,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 2 * 60 * 60, // 2 jam — sesuai dengan masa aktif token backend
   },
   cookies: {
     sessionToken: {
@@ -73,6 +74,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: process.env.NODE_ENV === "production",
+        maxAge: undefined, // Session cookie — hilang saat browser ditutup
       },
     },
   },

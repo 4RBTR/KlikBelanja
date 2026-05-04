@@ -70,7 +70,7 @@ function UserDashboardContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
 
-  const baseUrlImage = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "https://learn.smktelkom-mlg.sch.id/toko/";
+  const baseUrlImage = "/api/image/";
 
   useEffect(() => {
     if (status === "unauthenticated") {

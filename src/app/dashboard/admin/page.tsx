@@ -53,7 +53,7 @@ function AdminDashboardContent() {
   const formRef = useRef<HTMLFormElement>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  const baseUrlImage = process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "https://learn.smktelkom-mlg.sch.id/toko/";
+  const baseUrlImage = "/api/image/";
 
   const fetchData = async () => {
     setLoading(true);
